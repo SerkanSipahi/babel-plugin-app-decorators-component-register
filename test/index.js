@@ -121,4 +121,58 @@ describe('@component', () => {
 
     });
 
+    it('should add required import statements even if other imports exists', () => {
+
+        let actual =`
+            import a from a/foo';
+            import b from 'b/foo';
+
+            @component()
+            class Foo {
+            }`;
+
+        let expected = `
+            import * as _register from 'app-decorators-helper/register-document';
+            import * as _storage from 'app-decorators-helper/registry-storage';
+            import a from a/foo';
+            import b from 'b/foo';
+
+            @component()
+            class Foo {
+            }
+            _register.Register.customElement(Foo, _storage.storage);`;
+
+        let generated = transformCode(actual);
+
+        assert.equal(trim(generated), trim(expected));
+
+    });
+
+    it('should adjust local scope conflicts', () => {
+
+        let actual =`
+            import a as _register from a/foo';
+            import b as _storage from 'b/foo';
+
+            @component()
+            class Foo {
+            }`;
+
+        let expected = `
+            import * as _register2 from 'app-decorators-helper/register-document';
+            import * as _storage2 from 'app-decorators-helper/registry-storage';
+            import _register from a/foo';
+            import _storage from 'b/foo';
+
+            @component()
+            class Foo {
+            }
+            _register2.Register.customElement(Foo, _storage2.storage);`;
+
+        let generated = transformCode(actual);
+
+        assert.equal(trim(generated), trim(expected));
+
+    });
+
 });
