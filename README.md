@@ -1,5 +1,5 @@
 ## babel-plugin-app-decorators-component-register
-Babel Plugin for extend HTMLElement by options for Babeljs v6.x
+Babel Plugin for auto generating code
 
 <p>
     <a href="https://david-dm.org/SerkanSipahi/babel-plugin-app-decorators-component-register"><img src="https://david-dm.org/SerkanSipahi/david.svg" alt="Dependency Status"></a>
