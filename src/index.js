@@ -86,11 +86,11 @@ let getDecorator = (path, decoratorName) => {
 let importsAppended = (imports, programBody) => {
 
     let importLimit = 0;
-    imports.forEach(imp => {
+    imports.forEach(imp =>
         programBody.forEach(pB =>
             (pB._$source === imp.SOURCE ? importLimit++ : null)
-        );
-    });
+        )
+    );
     return importLimit === imports.length;
 };
 
@@ -117,8 +117,8 @@ function plugin() {
                     throw new Error('Please pass Register and storage');
                 }
 
-                let imports = state.opts.imports;
-                imports = imports.map(data => {
+                let imports = null;
+                imports = state.opts.imports.map(data => {
 
                     let { IMPORT_NAME, SOURCE } = data;
                     let IMPORT_NAME_UID = path.scope.generateUidIdentifier(IMPORT_NAME).name;
