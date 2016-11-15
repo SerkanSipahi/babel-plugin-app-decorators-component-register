@@ -177,4 +177,30 @@ describe('@component', () => {
 
     });
 
+    it('should add required import statements and Register function if even export exists', () => {
+
+        let actual =`
+            @component()
+            class Foo {}
+            let element = Foo.create();
+
+            export { Foo };`;
+
+        let expected = `
+            import * as _Register from "app-decorators-helper/register-document";
+            import * as _storage from "app-decorators-helper/registry-storage";
+
+            @component()
+            class Foo {}
+            _Register.Register.customElement(Foo, _storage.storage);
+            let element = Foo.create();
+
+            export { Foo };`;
+
+        let generated = transformCode(actual);
+
+        assert.equal(trim(generated), trim(expected));
+
+    });
+
 });
