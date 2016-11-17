@@ -59,17 +59,16 @@ let buildRegisterAst = data => {
 
 /**
  * getDecorator
- * @param path {object}
  * @param decoratorName {string}
  * @returns {*}
  */
-let getDecorator = (path, decoratorName) => {
+let getDecorator = function(decoratorName) {
 
-    if(!path.node.decorators){
+    if(!this.node.decorators){
         return false;
     }
 
-    return path.node.decorators.filter(deco => {
+    return this.node.decorators.filter(deco => {
         let { name } = deco.expression.callee;
         if(name === decoratorName){
             return true;
@@ -95,6 +94,34 @@ let importsAppended = (imports, programBody) => {
 };
 
 /**
+ * addImports
+ * @param path {object}
+ * @param cachedImports {array}
+ * @param cachedProgramBody {array}
+ */
+let addImports = function(path, cachedImports, cachedProgramBody) {
+
+    let imports = cachedImports.map(data => {
+
+        let { IMPORT_NAME, SOURCE } = data;
+        let IMPORT_NAME_UID = path.scope.generateUidIdentifier(IMPORT_NAME).name;
+
+        this.cache.set(`${IMPORT_NAME}-value`, IMPORT_NAME_UID);
+        this.cache.set(`${IMPORT_NAME}-value-orig`, IMPORT_NAME);
+
+        return buildImportAst({
+            IMPORT_NAME: IMPORT_NAME_UID,
+            SOURCE: SOURCE
+        });
+    });
+
+    if(!importsAppended(cachedImports, cachedProgramBody)){
+        cachedProgramBody.unshift(...imports);
+    }
+};
+
+
+/**
  * getClassName
  * @param path
  * @returns {string};
@@ -106,6 +133,7 @@ function plugin() {
     return {
         pre(){
             this.cache = new Map();
+            this.cache.set('decorator', false);
         },
         post(){
             this.cache.clear();
@@ -113,35 +141,33 @@ function plugin() {
         visitor: {
             Program(path, state) {
 
-                if(state.opts.imports.length !== 2){
-                    throw new Error('Please pass Register and storage');
-                }
-
-                let imports = null;
-                imports = state.opts.imports.map(data => {
-
-                    let { IMPORT_NAME, SOURCE } = data;
-                    let IMPORT_NAME_UID = path.scope.generateUidIdentifier(IMPORT_NAME).name;
-
-                    this.cache.set(`${IMPORT_NAME}-value`, IMPORT_NAME_UID);
-                    this.cache.set(`${IMPORT_NAME}-value-orig`, IMPORT_NAME);
-
-                    return buildImportAst({
-                        IMPORT_NAME: IMPORT_NAME_UID,
-                        SOURCE: SOURCE
-                    });
+                let self = this;
+                path.traverse({
+                    ClassDeclaration(path) {
+                        let component = path::getDecorator('component');
+                        if(component.length){
+                            self.cache.set('decorator', true);
+                        }
+                    }
                 });
+
+                if(!self.cache.get('decorator')){
+                    return;
+                }
 
                 let cachedImports = state.opts.imports;
                 let cachedProgramBody = path.node.body;
 
-                if(!importsAppended(cachedImports, cachedProgramBody)){
-                    cachedProgramBody.unshift(...imports);
+                if(cachedImports.length !== 2){
+                    throw new Error('Please pass Register and storage');
                 }
+
+                this::addImports(path, cachedImports, cachedProgramBody);
+
             },
             ClassDeclaration(path) {
 
-                let component = getDecorator(path, 'component');
+                let component = path::getDecorator('component');
                 if(!component.length){
                     return;
                 }

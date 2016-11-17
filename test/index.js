@@ -203,4 +203,30 @@ describe('@component', () => {
 
     });
 
+    it('should do nothing if no @components found', () => {
+
+        let actual =`
+            class Bar {}
+
+            @view()
+            class Foo {}
+            let element = Foo.create();
+
+            export { Foo };`;
+
+        let expected = `
+            class Bar {}
+
+            @view()
+            class Foo {}
+            let element = Foo.create();
+
+            export { Foo };`;
+
+        let generated = transformCode(actual);
+
+        assert.equal(trim(generated), trim(expected));
+
+    });
+
 });
