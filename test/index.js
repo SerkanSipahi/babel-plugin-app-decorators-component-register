@@ -229,4 +229,36 @@ describe('@component', () => {
 
     });
 
+    it('should do nothing if required imports already imported', () => {
+
+        let actual =`
+            import { storage } from "app-decorators-helper/registry-storage";
+            import { Register } from "app-decorators-helper/register-document";
+
+            @component()
+            class foo {}
+
+            function baz() {}
+
+            @component()
+            class bar {}`;
+
+        let expected = `
+            import { storage } from "app-decorators-helper/registry-storage";
+            import { Register } from "app-decorators-helper/register-document";
+
+            @component()
+            class foo {}
+
+            function baz() {}
+
+            @component()
+            class bar {}`;
+
+        let generated = transformCode(actual);
+
+        assert.equal(trim(generated), trim(expected));
+
+    });
+
 });

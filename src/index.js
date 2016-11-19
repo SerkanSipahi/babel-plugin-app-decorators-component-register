@@ -76,16 +76,31 @@ let getDecorator = function(decoratorName) {
     });
 };
 
+/**
+ * addImports
+ * @param path {object}
+ * @param imports {array}
+ * @param programImports {array}
+ * @param programBody {object}
+ */
 let addImports = function(path, imports, programImports, programBody) {
-
 
     imports.forEach(imp => {
 
-        let result = programImports.filter(prImp =>
-            imp.SOURCE === prImp.SOURCE && imp.SOURCE === prImp.SOURCE
-        );
+        let result = null;
+        for(let prImp of programImports){
 
-        if(!result.length){
+            imp.IMPORTED =
+                imp.IMPORT_NAME === prImp.IMPORT_NAME &&
+                imp.SOURCE === prImp.SOURCE;
+
+            if(imp.IMPORTED){
+                result = prImp;
+                break;
+            }
+        }
+
+        if(!result){
             let createdImportAst = this::buildImport(imp, path);
             programBody.unshift(createdImportAst);
         }
@@ -162,11 +177,13 @@ function plugin() {
                 path.traverse({
                     ImportDeclaration(path) {
 
+                        // lookup for import
                         let importPath = path.node.source.value;
                         if(!importPath){
                             return;
                         }
 
+                        // create import object { IMPORT_NAME: 'foo', SOURCE: './a' }
                         let imports = path.node.specifiers.map(({ local }) => {
                             return {
                                 IMPORT_NAME: local.name,
@@ -181,10 +198,15 @@ function plugin() {
 
 
             },
-            ClassDeclaration(path) {
+            ClassDeclaration(path, state) {
 
                 let component = path::getDecorator('component');
                 if(!component.length){
+                    return;
+                }
+
+                let [ imp1, imp2 ] = state.opts.imports;
+                if(imp1.IMPORTED && imp2.IMPORTED){
                     return;
                 }
 
