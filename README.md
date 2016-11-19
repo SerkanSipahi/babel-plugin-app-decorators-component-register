@@ -28,10 +28,10 @@ $ npm install babel-plugin-app-decorators-component-register --save
 ```js
 "plugins": [
     ["app-decorators-component-register", {
-        imports: [
-            { importName: 'Register', source: 'app-decorators-helper/register-document' },
-            { importName: 'storage',  source: 'app-decorators-helper/registry-storage' },
-        ],
+        "imports": [
+            { "IMPORT_NAME": "Register", "SOURCE": "app-decorators-helper/register-customelement" },
+            { "IMPORT_NAME": "storage",  "SOURCE": "app-decorators-helper/random-storage" }
+        ]
     }]
 ]
 ```
