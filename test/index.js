@@ -32,8 +32,8 @@ describe('@component', () => {
             class Foo {}`;
 
         let expected = `
-            import * as _Register from "app-decorators-helper/register-document";
             import * as _storage from "app-decorators-helper/registry-storage";
+            import * as _Register from "app-decorators-helper/register-document";
 
             @component()
             class Foo {}
@@ -55,8 +55,8 @@ describe('@component', () => {
             class Bar {}`;
 
         let expected = `
-            import * as _Register from "app-decorators-helper/register-document";
             import * as _storage from "app-decorators-helper/registry-storage";
+            import * as _Register from "app-decorators-helper/register-document";
             
             @component()
             class Foo {}
@@ -85,8 +85,8 @@ describe('@component', () => {
             class Bar {}`;
 
         let expected = `
-            import * as _Register from "app-decorators-helper/register-document";
             import * as _storage from "app-decorators-helper/registry-storage";
+            import * as _Register from "app-decorators-helper/register-document";
             
             @component()
             class Foo {}
@@ -115,8 +115,8 @@ describe('@component', () => {
             class Foo {}`;
 
         let expected = `
-            import * as _Register from "app-decorators-helper/register-document";
             import * as _storage from "app-decorators-helper/registry-storage";
+            import * as _Register from "app-decorators-helper/register-document";
             import a from "a/foo";
             import b from "b/foo";
 
@@ -140,8 +140,8 @@ describe('@component', () => {
             class Foo {}`;
 
         let expected = `
-            import * as _Register2 from "app-decorators-helper/register-document";
             import * as _storage2 from "app-decorators-helper/registry-storage";
+            import * as _Register2 from "app-decorators-helper/register-document";
             import _Register from "a/foo";
             import * as _storage from "b/foo";
 
@@ -163,8 +163,8 @@ describe('@component', () => {
             let element = Foo.create();`;
 
         let expected = `
-            import * as _Register from "app-decorators-helper/register-document";
             import * as _storage from "app-decorators-helper/registry-storage";
+            import * as _Register from "app-decorators-helper/register-document";
 
             @component()
             class Foo {}
@@ -187,8 +187,8 @@ describe('@component', () => {
             export { Foo };`;
 
         let expected = `
-            import * as _Register from "app-decorators-helper/register-document";
             import * as _storage from "app-decorators-helper/registry-storage";
+            import * as _Register from "app-decorators-helper/register-document";
 
             @component()
             class Foo {}

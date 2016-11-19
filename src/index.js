@@ -65,7 +65,7 @@ let buildRegisterAst = data => {
 let getDecorator = function(decoratorName) {
 
     if(!this.node.decorators){
-        return false;
+        return [];
     }
 
     return this.node.decorators.filter(deco => {
@@ -76,50 +76,41 @@ let getDecorator = function(decoratorName) {
     });
 };
 
-/**
- * importsAppended
- * @param imports {array}
- * @param programBody {array}
- * @returns {boolean}
- */
-let importsAppended = (imports, programBody) => {
+let addImports = function(path, imports, programImports, programBody) {
 
-    let importLimit = 0;
-    imports.forEach(imp =>
-        programBody.forEach(pB =>
-            (pB._$source === imp.SOURCE ? importLimit++ : null)
-        )
-    );
-    return importLimit === imports.length;
-};
 
-/**
- * addImports
- * @param path {object}
- * @param cachedImports {array}
- * @param cachedProgramBody {array}
- */
-let addImports = function(path, cachedImports, cachedProgramBody) {
+    imports.forEach(imp => {
 
-    let imports = cachedImports.map(data => {
+        let result = programImports.filter(prImp =>
+            imp.SOURCE === prImp.SOURCE && imp.SOURCE === prImp.SOURCE
+        );
 
-        let { IMPORT_NAME, SOURCE } = data;
-        let IMPORT_NAME_UID = path.scope.generateUidIdentifier(IMPORT_NAME).name;
-
-        this.cache.set(`${IMPORT_NAME}-value`, IMPORT_NAME_UID);
-        this.cache.set(`${IMPORT_NAME}-value-orig`, IMPORT_NAME);
-
-        return buildImportAst({
-            IMPORT_NAME: IMPORT_NAME_UID,
-            SOURCE: SOURCE
-        });
+        if(!result.length){
+            let createdImportAst = this::buildImport(imp, path);
+            programBody.unshift(createdImportAst);
+        }
     });
-
-    if(!importsAppended(cachedImports, cachedProgramBody)){
-        cachedProgramBody.unshift(...imports);
-    }
 };
 
+/**
+ * buildImport
+ * @param data {object}
+ * @param path {object}
+ * @returns {Object}
+ */
+let buildImport = function(data, path) {
+
+    let { IMPORT_NAME, SOURCE } = data;
+    let IMPORT_NAME_UID = path.scope.generateUidIdentifier(IMPORT_NAME).name;
+
+    this.cache.set(`${IMPORT_NAME}-value`, IMPORT_NAME_UID);
+    this.cache.set(`${IMPORT_NAME}-value-orig`, IMPORT_NAME);
+
+    return buildImportAst({
+        IMPORT_NAME: IMPORT_NAME_UID,
+        SOURCE: SOURCE
+    });
+};
 
 /**
  * getClassName
@@ -141,6 +132,16 @@ function plugin() {
         visitor: {
             Program(path, state) {
 
+                let optionsImports = state.opts.imports;
+                let programBody = path.node.body;
+
+                if(optionsImports.length !== 2){
+                    throw new Error('Please pass Register and storage');
+                }
+
+                /**
+                 * Check that @component exist
+                 */
                 let self = this;
                 path.traverse({
                     ClassDeclaration(path) {
@@ -150,19 +151,34 @@ function plugin() {
                         }
                     }
                 });
-
                 if(!self.cache.get('decorator')){
                     return;
                 }
 
-                let cachedImports = state.opts.imports;
-                let cachedProgramBody = path.node.body;
+                /**
+                 * Check that required imports already imported
+                 */
+                let programImports = [];
+                path.traverse({
+                    ImportDeclaration(path) {
 
-                if(cachedImports.length !== 2){
-                    throw new Error('Please pass Register and storage');
-                }
+                        let importPath = path.node.source.value;
+                        if(!importPath){
+                            return;
+                        }
 
-                this::addImports(path, cachedImports, cachedProgramBody);
+                        let imports = path.node.specifiers.map(({ local }) => {
+                            return {
+                                IMPORT_NAME: local.name,
+                                SOURCE: importPath,
+                            };
+                        });
+                        programImports.push(...imports);
+                    }
+                });
+
+                this::addImports(path, optionsImports, programImports, programBody);
+
 
             },
             ClassDeclaration(path) {
