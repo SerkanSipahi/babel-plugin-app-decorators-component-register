@@ -12,10 +12,10 @@ function transformCode(code){
     let generated = transform(code, {
         plugins: [
             [appDecoratorComponentRegister, {
-                imports: [
-                    { IMPORT_NAME: 'Register', SOURCE: 'app-decorators-helper/register-customelement' },
-                    { IMPORT_NAME: 'storage',  SOURCE: 'app-decorators-helper/random-storage' },
-                ],
+                "imports": [
+                    { "IMPORT_NAME": "Register", "SOURCE": "app-decorators-helper/register-customelement" },
+                    { "IMPORT_NAME": "storage",  "SOURCE": "app-decorators-helper/random-storage" }
+                ]
             }],
             syntaxDecorator
         ]

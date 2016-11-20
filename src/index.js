@@ -127,6 +127,38 @@ let buildImport = function(data, path) {
     });
 };
 
+let setDecoratorState = function(self, path) {
+
+    let component = path::getDecorator('component');
+    if(component.length){
+        self.cache.set('decorator', true);
+    }
+};
+
+/**
+ * getImportDeclaration
+ * @param path {object}
+ * @returns {Array}
+ */
+let getImportDeclaration = path => {
+
+    // lookup for import
+    let importPath = path.node.source.value;
+    if(!importPath){
+        return;
+    }
+
+    // create import object { IMPORT_NAME: 'foo', SOURCE: './a' }
+    let imports = path.node.specifiers.map(({ local }) => {
+        return {
+            IMPORT_NAME: local.name,
+            SOURCE: importPath,
+        };
+    });
+
+    return imports;
+};
+
 /**
  * getClassName
  * @param path
@@ -159,12 +191,7 @@ function plugin() {
                  */
                 let self = this;
                 path.traverse({
-                    ClassDeclaration(path) {
-                        let component = path::getDecorator('component');
-                        if(component.length){
-                            self.cache.set('decorator', true);
-                        }
-                    }
+                    ClassDeclaration: path => setDecoratorState(self, path),
                 });
                 if(!self.cache.get('decorator')){
                     return;
@@ -175,23 +202,10 @@ function plugin() {
                  */
                 let programImports = [];
                 path.traverse({
-                    ImportDeclaration(path) {
-
-                        // lookup for import
-                        let importPath = path.node.source.value;
-                        if(!importPath){
-                            return;
-                        }
-
-                        // create import object { IMPORT_NAME: 'foo', SOURCE: './a' }
-                        let imports = path.node.specifiers.map(({ local }) => {
-                            return {
-                                IMPORT_NAME: local.name,
-                                SOURCE: importPath,
-                            };
-                        });
+                    ImportDeclaration: path => {
+                        let imports = getImportDeclaration(path);
                         programImports.push(...imports);
-                    }
+                    },
                 });
 
                 this::addImports(path, optionsImports, programImports, programBody);
