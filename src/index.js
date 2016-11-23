@@ -13,7 +13,7 @@ let compileImportTemplate = template(`
  */
 let compileRegisterTemplate = template(`
     REGISTER_VALUE.REGISTER_VALUE_ORIG.customElement(
-        CLASS_NAME, STORAGE_VALUE.STORAGE_VALUE_ORIG
+        CLASS_NAME, STORAGE_VALUE.STORAGE_VALUE_ORIG.get(CLASS_NAME).get(STORAGE_POINTER)
     );
 `);
 
@@ -50,6 +50,7 @@ let buildRegisterAst = data => {
 
     return compileRegisterTemplate({
         CLASS_NAME : t.identifier(data.CLASS_NAME),
+        STORAGE_POINTER: t.stringLiteral(data.STORAGE_POINTER),
         REGISTER_VALUE: t.identifier(data.REGISTER_VALUE),
         REGISTER_VALUE_ORIG: t.identifier(data.REGISTER_VALUE_ORIG),
         STORAGE_VALUE: t.identifier(data.STORAGE_VALUE),
@@ -214,6 +215,8 @@ function plugin() {
             },
             ClassDeclaration(path, state) {
 
+                let { storage_pointer } = state.opts;
+
                 let component = path::getDecorator('component');
                 if(!component.length){
                     return;
@@ -227,6 +230,7 @@ function plugin() {
                 // build Register ast
                 let registerAst = buildRegisterAst({
                     CLASS_NAME         : getClassName(path),
+                    STORAGE_POINTER    : storage_pointer,
                     REGISTER_VALUE     : this.cache.get('Register-value'),
                     REGISTER_VALUE_ORIG: this.cache.get('Register-value-orig'),
                     STORAGE_VALUE      : this.cache.get('storage-value'),

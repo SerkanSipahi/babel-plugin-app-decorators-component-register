@@ -12,6 +12,7 @@ function transformCode(code){
     let generated = transform(code, {
         plugins: [
             [appDecoratorComponentRegister, {
+                "storage_pointer": '@component',
                 "imports": [
                     { "IMPORT_NAME": "Register", "SOURCE": "app-decorators-helper/register-customelement" },
                     { "IMPORT_NAME": "storage",  "SOURCE": "app-decorators-helper/random-storage" }
@@ -37,7 +38,7 @@ describe('@component', () => {
 
             @component()
             class Foo {}
-            _Register.Register.customElement(Foo, _storage.storage);`;
+            _Register.Register.customElement(Foo, _storage.storage.get(Foo).get("@component"));`;
 
         let generated = transformCode(actual);
 
@@ -60,11 +61,11 @@ describe('@component', () => {
             
             @component()
             class Foo {}
-            _Register.Register.customElement(Foo, _storage.storage);
+            _Register.Register.customElement(Foo, _storage.storage.get(Foo).get("@component"));
 
             @component()
             class Bar {}
-            _Register.Register.customElement(Bar, _storage.storage);`;
+            _Register.Register.customElement(Bar, _storage.storage.get(Bar).get("@component"));`;
 
         let generated = transformCode(actual);
 
@@ -90,14 +91,14 @@ describe('@component', () => {
             
             @component()
             class Foo {}
-            _Register.Register.customElement(Foo, _storage.storage);
+            _Register.Register.customElement(Foo, _storage.storage.get(Foo).get("@component"));
 
             class Baz {}
             function Kaz() {}
 
             @component()
             class Bar {}
-            _Register.Register.customElement(Bar, _storage.storage);`;
+            _Register.Register.customElement(Bar, _storage.storage.get(Bar).get("@component"));`;
 
         let generated = transformCode(actual);
 
@@ -122,7 +123,7 @@ describe('@component', () => {
 
             @component()
             class Foo {}
-            _Register.Register.customElement(Foo, _storage.storage);`;
+            _Register.Register.customElement(Foo, _storage.storage.get(Foo).get("@component"));`;
 
         let generated = transformCode(actual);
 
@@ -147,7 +148,7 @@ describe('@component', () => {
 
             @component()
             class Foo {}
-            _Register2.Register.customElement(Foo, _storage2.storage);`;
+            _Register2.Register.customElement(Foo, _storage2.storage.get(Foo).get("@component"));`;
 
         let generated = transformCode(actual);
 
@@ -168,7 +169,7 @@ describe('@component', () => {
 
             @component()
             class Foo {}
-            _Register.Register.customElement(Foo, _storage.storage);
+            _Register.Register.customElement(Foo, _storage.storage.get(Foo).get("@component"));
             let element = Foo.create();`;
 
         let generated = transformCode(actual);
@@ -192,7 +193,7 @@ describe('@component', () => {
 
             @component()
             class Foo {}
-            _Register.Register.customElement(Foo, _storage.storage);
+            _Register.Register.customElement(Foo, _storage.storage.get(Foo).get("@component"));
             let element = Foo.create();
 
             export { Foo };`;
