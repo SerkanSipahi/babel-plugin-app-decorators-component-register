@@ -236,6 +236,10 @@ function plugin() {
                     STORAGE_VALUE      : this.cache.get('storage-value'),
                     STORAGE_VALUE_ORIG : this.cache.get('storage-value-orig'),
                 });
+
+                if(path.parentPath && path.parentPath.type === "ExportNamedDeclaration"){
+                    path = path.parentPath;
+                }
                 path.insertAfter(registerAst);
 
             },

@@ -2,6 +2,7 @@ import assert from 'assert';
 import { transform } from 'babel-core';
 import appDecoratorComponentRegister from'../src/index';
 import syntaxDecorator from 'babel-plugin-syntax-decorators';
+import syntaxFuncBind from 'babel-plugin-syntax-function-bind';
 
 function trim(str) {
     return str.replace(/^\s+/gm, '');
@@ -18,7 +19,8 @@ function transformCode(code){
                     { "IMPORT_NAME": "storage",  "SOURCE": "app-decorators-helper/random-storage" }
                 ]
             }],
-            syntaxDecorator
+            syntaxDecorator,
+            syntaxFuncBind
         ]
     });
     return generated.code;
